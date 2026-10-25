@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>뉴스 카드 제작자</title>
 <style>
 *{box-sizing:border-box}
@@ -21,6 +21,7 @@ a{color:#93c5fd}
 .card small{color:#bfdbfe}
 .editor{max-width:380px;margin:12px auto 30px;text-align:left}
 .editor label{display:block;margin:10px 0 5px}
+.saveBtn{background:#059669}
 </style>
 </head>
 <body>
@@ -37,14 +38,12 @@ a{color:#93c5fd}
 <div id="result" aria-live="polite"></div>
 <section id="cardsArea">
 <h2>📱 카드뉴스 5장 미리보기</h2>
-<p>아래 입력칸에서 문구를 자유롭게 수정할 수 있어요.</p>
+<p>문구를 수정한 뒤 각 카드의 초록색 저장 버튼을 누르세요.</p>
 <div id="cards"></div>
 </section>
 <script>
-let newsTitle='';
-let newsDescription='';
-let translatedTitle='';
-let translatedDescription='';
+let newsTitle='',newsDescription='',translatedTitle='',translatedDescription='';
+const cardData=[];
 function safe(text){return String(text||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function showLink(){
 document.getElementById('linkBox').style.display='block';
@@ -103,11 +102,13 @@ const parts=[
 ['해외에서 전해진 소식',desc],
 ['어떤 상황이었을까요?',desc],
 ['핵심 내용 살펴보기',title],
-['여러분은 어떻게 생각하세요?', '자세한 사실은 원문 기사를 확인해 주세요.']
+['여러분은 어떻게 생각하세요?','자세한 사실은 원문 기사를 확인해 주세요.']
 ];
 const container=document.getElementById('cards');
 container.innerHTML='';
+cardData.length=0;
 parts.forEach((part,i)=>{
+cardData.push({title:part[0],body:part[1]});
 const wrapper=document.createElement('div');
 const card=document.createElement('div');
 card.className='card';
@@ -124,18 +125,71 @@ const label1=document.createElement('label');
 label1.textContent=(i+1)+'장 제목 수정';
 const input=document.createElement('input');
 input.value=part[0];
-input.addEventListener('input',()=>heading.textContent=input.value);
+input.addEventListener('input',()=>{heading.textContent=input.value;cardData[i].title=input.value;});
 const label2=document.createElement('label');
 label2.textContent=(i+1)+'장 내용 수정';
 const textarea=document.createElement('textarea');
 textarea.value=part[1];
-textarea.addEventListener('input',()=>para.textContent=textarea.value);
-editor.append(label1,input,label2,textarea);
+textarea.addEventListener('input',()=>{para.textContent=textarea.value;cardData[i].body=textarea.value;});
+const save=document.createElement('button');
+save.className='saveBtn';
+save.textContent='📥 '+(i+1)+'장 PNG 저장하기';
+save.addEventListener('click',()=>saveCard(i));
+editor.append(label1,input,label2,textarea,save);
 wrapper.append(card,editor);
 container.appendChild(wrapper);
 });
 document.getElementById('cardsArea').style.display='block';
 document.getElementById('cardsArea').scrollIntoView({behavior:'smooth'});
+}
+function wrapLines(ctx,text,maxWidth){
+const lines=[];
+String(text).split('\n').forEach(paragraph=>{
+let line='';
+for(const ch of paragraph){
+if(ctx.measureText(line+ch).width>maxWidth&&line){lines.push(line);line=ch;}
+else line+=ch;
+}
+lines.push(line);
+});
+return lines;
+}
+function drawCentered(ctx,lines,y,lineHeight,maxLines){
+lines.slice(0,maxLines).forEach((line,i)=>ctx.fillText(line,540,y+i*lineHeight));
+}
+function saveCard(i){
+const data=cardData[i];
+if(!data)return;
+const canvas=document.createElement('canvas');
+canvas.width=1080;canvas.height=1350;
+const ctx=canvas.getContext('2d');
+const gradient=ctx.createLinearGradient(0,0,1080,1350);
+gradient.addColorStop(0,'#1d4ed8');
+gradient.addColorStop(1,'#0f172a');
+ctx.fillStyle=gradient;
+ctx.fillRect(0,0,1080,1350);
+ctx.strokeStyle='#60a5fa';ctx.lineWidth=12;
+ctx.strokeRect(18,18,1044,1314);
+ctx.textAlign='center';ctx.textBaseline='middle';
+ctx.fillStyle='#bfdbfe';ctx.font='36px sans-serif';
+ctx.fillText((i+1)+' / 5',540,150);
+ctx.fillStyle='#ffffff';ctx.font='bold 62px sans-serif';
+const titles=wrapLines(ctx,data.title,900);
+const titleLines=titles.slice(0,5);
+drawCentered(ctx,titleLines,320,85,5);
+ctx.font='42px sans-serif';
+const bodies=wrapLines(ctx,data.body,890);
+const bodyLines=bodies.slice(0,12);
+const bodyStart=Math.max(760,410+titleLines.length*85);
+drawCentered(ctx,bodyLines,bodyStart,62,12);
+canvas.toBlob(blob=>{
+if(!blob){alert('이미지를 만들지 못했어요.');return;}
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');
+a.href=url;a.download='cardnews-'+(i+1)+'.png';
+document.body.appendChild(a);a.click();a.remove();
+setTimeout(()=>URL.revokeObjectURL(url),10000);
+},'image/png');
 }
 </script>
 </body>
