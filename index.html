@@ -26,6 +26,9 @@ a{color:#93c5fd}
 .editor{max-width:380px;margin:12px auto 30px;text-align:left}
 .editor label{display:block;margin:10px 0 5px}
 .saveBtn{background:#059669}
+.promptBox{background:#1e293b;border:1px solid #475569;border-radius:12px;padding:14px;margin:18px auto;max-width:380px;text-align:left}
+.promptBox textarea{background:white;color:#111827}
+.promptBox button{background:#7c3aed}
 </style>
 </head>
 <body>
@@ -42,13 +45,16 @@ a{color:#93c5fd}
 <div id="result" aria-live="polite"></div>
 <section id="cardsArea">
 <h2>📱 카드뉴스 5장 미리보기</h2>
-<p>사진과 문구를 수정한 뒤 각 카드의 저장 버튼을 누르세요.</p>
+<p>사진과 문구를 수정한 뒤 저장하세요.</p>
 <div id="cards"></div>
+<h2>🎨 AI 이미지 생성용 문구 5개</h2>
+<p>아래 문구를 복사해 AI 이미지 생성 서비스에 붙여넣으세요. 실제 뉴스 사진이 아닌 재현 이미지입니다.</p>
+<div id="prompts"></div>
 </section>
 <script>
 let newsTitle='',newsDescription='',translatedTitle='',translatedDescription='';
 const cardData=[];
-function safe(text){return String(text||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));}
+function safe(text){return String(text||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function showLink(){
 document.getElementById('linkBox').style.display='block';
 document.getElementById('result').textContent='';
@@ -173,8 +179,43 @@ editor.append(photoLabel,file,label1,input,label2,textarea,save);
 wrapper.append(card,editor);
 container.appendChild(wrapper);
 });
+makePrompts();
 document.getElementById('cardsArea').style.display='block';
 document.getElementById('cardsArea').scrollIntoView({behavior:'smooth'});
+}
+function makePrompts(){
+const subject=(translatedTitle||newsTitle||'해외 뉴스').slice(0,180);
+const context=(translatedDescription||newsDescription||'').slice(0,250);
+const scenes=[
+'뉴스의 핵심 주제를 한눈에 보여주는 표지용 장면',
+'보도된 장소와 배경을 중립적으로 표현하는 장면',
+'기사에 실제로 언급된 상황을 재현하는 장면',
+'기사의 주요 내용을 설명하는 클로즈업 장면',
+'사건을 돌아보게 하는 차분한 마무리 장면'
+];
+const holder=document.getElementById('prompts');
+holder.innerHTML='';
+scenes.forEach((scene,i)=>{
+const box=document.createElement('div');
+box.className='promptBox';
+const heading=document.createElement('h3');
+heading.textContent=(i+1)+'장 이미지 문구';
+const area=document.createElement('textarea');
+area.value='다음 뉴스 제목과 설명을 참고해 이미지를 제작해 주세요.\n제목: '+subject+'\n설명: '+context+'\n장면 목적: '+scene+'\n실사 같은 자연스러운 사진 스타일, 세로 4:5 비율, 글씨와 로고 없음. 기사에 없는 인물, 동물, 장소, 사건 세부사항을 사실인 것처럼 만들어 넣지 마세요. 불확실한 내용은 상징적으로 표현하세요. 실제 현장 사진이 아닌 AI 재현 이미지입니다.';
+const copy=document.createElement('button');
+copy.textContent='📋 '+(i+1)+'장 문구 복사하기';
+copy.addEventListener('click',async()=>{
+try{
+await navigator.clipboard.writeText(area.value);
+alert('문구를 복사했어요.');
+}catch(e){
+area.focus();area.select();
+alert('문구가 선택됐어요. 복사를 눌러 주세요.');
+}
+});
+box.append(heading,area,copy);
+holder.appendChild(box);
+});
 }
 function wrapLines(ctx,text,maxWidth){
 const lines=[];
