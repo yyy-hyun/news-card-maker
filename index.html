@@ -5,14 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>뉴스 카드 제작자</title>
 <style>
-body{margin:0;background:#101827;color:white;font-family:Arial,sans-serif;text-align:center;padding:30px 18px}
-h1{margin-top:45px}
-p{color:#cbd5e1}
-button{display:block;width:100%;max-width:380px;margin:15px auto;padding:17px;border:0;border-radius:12px;background:#2563eb;color:white;font-size:17px}
-input{box-sizing:border-box;width:100%;max-width:380px;padding:15px;border-radius:10px;border:1px solid #94a3b8;font-size:16px}
-#linkBox{display:none;margin-top:25px}
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:white;font-family:Arial,sans-serif;text-align:center;padding:25px 16px}
+h1{margin-top:30px}
+p{color:#cbd5e1;line-height:1.6}
+button{display:block;width:100%;max-width:380px;margin:14px auto;padding:16px;border:0;border-radius:12px;background:#2563eb;color:white;font-size:16px;cursor:pointer}
+input,textarea{width:100%;max-width:380px;padding:14px;border-radius:10px;border:1px solid #94a3b8;font-size:16px}
+textarea{min-height:90px;resize:vertical}
+#linkBox,#cardsArea{display:none;margin-top:25px}
 #result{margin:20px auto;max-width:380px;overflow-wrap:anywhere;text-align:left;line-height:1.6}
 a{color:#93c5fd}
+.card{width:100%;max-width:360px;aspect-ratio:4/5;margin:20px auto;padding:25px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:linear-gradient(145deg,#1d4ed8,#0f172a);border:2px solid #60a5fa;border-radius:12px;overflow-wrap:anywhere}
+.card h2{font-size:25px;line-height:1.4}
+.card p{font-size:18px;color:white;white-space:pre-wrap}
+.card small{color:#bfdbfe}
+.editor{max-width:380px;margin:12px auto 30px;text-align:left}
+.editor label{display:block;margin:10px 0 5px}
 </style>
 </head>
 <body>
@@ -27,17 +35,25 @@ a{color:#93c5fd}
 <button onclick="checkLink()">뉴스 정보 확인하기</button>
 </div>
 <div id="result" aria-live="polite"></div>
+<section id="cardsArea">
+<h2>📱 카드뉴스 5장 미리보기</h2>
+<p>아래 입력칸에서 문구를 자유롭게 수정할 수 있어요.</p>
+<div id="cards"></div>
+</section>
 <script>
 let newsTitle='';
 let newsDescription='';
+let translatedTitle='';
+let translatedDescription='';
+function safe(text){return String(text||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function showLink(){
 document.getElementById('linkBox').style.display='block';
 document.getElementById('result').textContent='';
+document.getElementById('cardsArea').style.display='none';
 }
 function showMessage(name){
 document.getElementById('result').textContent=name+' 기능은 다음 단계에서 만들 예정이에요.';
 }
-function safe(text){return String(text||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function checkLink(){
 const url=document.getElementById('newsUrl').value.trim();
 const result=document.getElementById('result');
@@ -47,11 +63,12 @@ parsed=new URL(url);
 if(!['http:','https:'].includes(parsed.protocol))throw Error();
 }catch(e){result.textContent='올바른 인터넷 주소를 입력해 주세요.';return;}
 result.textContent='뉴스 정보를 확인하고 있어요...';
+document.getElementById('cardsArea').style.display='none';
 try{
 const response=await fetch('https://api.microlink.io?url='+encodeURIComponent(parsed.href));
-if(!response.ok)throw Error('request failed');
+if(!response.ok)throw Error();
 const json=await response.json();
-if(json.status!=='success'||!json.data)throw Error('no data');
+if(json.status!=='success'||!json.data)throw Error();
 newsTitle=json.data.title||'제목을 가져오지 못했어요.';
 newsDescription=json.data.description||'기사 설명을 가져오지 못했어요.';
 result.innerHTML='<h3>'+safe(newsTitle)+'</h3><p>'+safe(newsDescription)+'</p><button onclick="translateNews()">🇰🇷 한글로 번역하기</button><a href="'+safe(parsed.href)+'" target="_blank" rel="noopener noreferrer">원문 기사 열기</a><div id="translation"></div>';
@@ -71,12 +88,54 @@ const data=await response.json();
 if(data.responseStatus!==200||!data.responseData?.translatedText)throw Error();
 return data.responseData.translatedText;
 };
-const title=await translate(newsTitle);
-const description=await translate(newsDescription);
-target.innerHTML='<h3>🇰🇷 한글 번역</h3><p><strong>'+safe(title)+'</strong></p><p>'+safe(description)+'</p><small>자동 번역 결과이므로 원문과 비교해 주세요.</small>';
+translatedTitle=await translate(newsTitle);
+translatedDescription=await translate(newsDescription);
+target.innerHTML='<h3>🇰🇷 한글 번역</h3><p><strong>'+safe(translatedTitle)+'</strong></p><p>'+safe(translatedDescription)+'</p><small>자동 번역이므로 원문과 비교해 주세요.</small><button onclick="makeCards()">📰 카드뉴스 5장 만들기</button>';
 }catch(e){
 target.textContent='자동 번역에 실패했어요. 무료 번역 서비스의 사용량 또는 접속 제한 때문일 수 있어요.';
 }
+}
+function makeCards(){
+const title=translatedTitle||newsTitle;
+const desc=translatedDescription||newsDescription;
+const parts=[
+['무슨 일이 있었을까요?',title],
+['해외에서 전해진 소식',desc],
+['어떤 상황이었을까요?',desc],
+['핵심 내용 살펴보기',title],
+['여러분은 어떻게 생각하세요?', '자세한 사실은 원문 기사를 확인해 주세요.']
+];
+const container=document.getElementById('cards');
+container.innerHTML='';
+parts.forEach((part,i)=>{
+const wrapper=document.createElement('div');
+const card=document.createElement('div');
+card.className='card';
+const num=document.createElement('small');
+num.textContent=(i+1)+' / 5';
+const heading=document.createElement('h2');
+heading.textContent=part[0];
+const para=document.createElement('p');
+para.textContent=part[1];
+card.append(num,heading,para);
+const editor=document.createElement('div');
+editor.className='editor';
+const label1=document.createElement('label');
+label1.textContent=(i+1)+'장 제목 수정';
+const input=document.createElement('input');
+input.value=part[0];
+input.addEventListener('input',()=>heading.textContent=input.value);
+const label2=document.createElement('label');
+label2.textContent=(i+1)+'장 내용 수정';
+const textarea=document.createElement('textarea');
+textarea.value=part[1];
+textarea.addEventListener('input',()=>para.textContent=textarea.value);
+editor.append(label1,input,label2,textarea);
+wrapper.append(card,editor);
+container.appendChild(wrapper);
+});
+document.getElementById('cardsArea').style.display='block';
+document.getElementById('cardsArea').scrollIntoView({behavior:'smooth'});
 }
 </script>
 </body>
