@@ -28,6 +28,8 @@ a{color:#93c5fd}
 </div>
 <div id="result" aria-live="polite"></div>
 <script>
+let newsTitle='';
+let newsDescription='';
 function showLink(){
 document.getElementById('linkBox').style.display='block';
 document.getElementById('result').textContent='';
@@ -46,16 +48,34 @@ if(!['http:','https:'].includes(parsed.protocol))throw Error();
 }catch(e){result.textContent='올바른 인터넷 주소를 입력해 주세요.';return;}
 result.textContent='뉴스 정보를 확인하고 있어요...';
 try{
-const endpoint='https://api.microlink.io?url='+encodeURIComponent(parsed.href);
-const response=await fetch(endpoint);
+const response=await fetch('https://api.microlink.io?url='+encodeURIComponent(parsed.href));
 if(!response.ok)throw Error('request failed');
 const json=await response.json();
 if(json.status!=='success'||!json.data)throw Error('no data');
-const title=json.data.title||'제목을 가져오지 못했어요.';
-const description=json.data.description||'기사 설명을 가져오지 못했어요.';
-result.innerHTML='<h3>'+safe(title)+'</h3><p>'+safe(description)+'</p><a href="'+safe(parsed.href)+'" target="_blank" rel="noopener noreferrer">원문 기사 열기</a>';
+newsTitle=json.data.title||'제목을 가져오지 못했어요.';
+newsDescription=json.data.description||'기사 설명을 가져오지 못했어요.';
+result.innerHTML='<h3>'+safe(newsTitle)+'</h3><p>'+safe(newsDescription)+'</p><button onclick="translateNews()">🇰🇷 한글로 번역하기</button><a href="'+safe(parsed.href)+'" target="_blank" rel="noopener noreferrer">원문 기사 열기</a><div id="translation"></div>';
 }catch(e){
-result.innerHTML='<p>이 사이트의 뉴스 정보를 자동으로 가져오지 못했어요. 사이트 제한이나 서비스 사용량 때문일 수 있어요.</p><a href="'+safe(parsed.href)+'" target="_blank" rel="noopener noreferrer">원문 기사 열기</a>';
+result.innerHTML='<p>뉴스 정보를 자동으로 가져오지 못했어요.</p><a href="'+safe(parsed.href)+'" target="_blank" rel="noopener noreferrer">원문 기사 열기</a>';
+}
+}
+async function translateNews(){
+const target=document.getElementById('translation');
+target.textContent='번역 중이에요...';
+try{
+const translate=async text=>{
+const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text.slice(0,450))+'&langpair=en|ko';
+const response=await fetch(url);
+if(!response.ok)throw Error();
+const data=await response.json();
+if(data.responseStatus!==200||!data.responseData?.translatedText)throw Error();
+return data.responseData.translatedText;
+};
+const title=await translate(newsTitle);
+const description=await translate(newsDescription);
+target.innerHTML='<h3>🇰🇷 한글 번역</h3><p><strong>'+safe(title)+'</strong></p><p>'+safe(description)+'</p><small>자동 번역 결과이므로 원문과 비교해 주세요.</small>';
+}catch(e){
+target.textContent='자동 번역에 실패했어요. 무료 번역 서비스의 사용량 또는 접속 제한 때문일 수 있어요.';
 }
 }
 </script>
