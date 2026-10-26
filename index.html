@@ -432,11 +432,14 @@ ctx.fillText((i+1)+' / 5',540,150);
 ctx.fillStyle='#ffffff';
 ctx.font='bold 62px sans-serif';
 const titleLines=wrapLines(ctx,data.title,900).slice(0,5);
-drawCentered(ctx,titleLines,320,85,5);
-ctx.font='42px sans-serif';
+drawCentered(ctx,titleLines,230,85,5);
+ctx.font='32px sans-serif';
 const bodyLines=wrapLines(ctx,data.body,890).slice(0,12);
-const bodyStart=Math.max(760,410+titleLines.length*85);
-drawCentered(ctx,bodyLines,bodyStart,62,12);
+const bodyStart=950;
+ctx.fillStyle='rgba(0,0,0,0.55)';
+ctx.fillRect(0,850,1080,500);
+ctx.fillStyle='#ffffff';
+drawCentered(ctx,bodyLines,bodyStart,45,7);
 
 canvas.toBlob(blob=>{
 if(!blob){
