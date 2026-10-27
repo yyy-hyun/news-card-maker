@@ -63,7 +63,7 @@ a{color:#93c5fd}
 <section id="cardsArea">
 <h2>📱 카드뉴스 5장 미리보기</h2>
 <p>사진과 문구를 수정한 뒤 저장하세요.</p>
-<div id="hookArea">
+<button onclick="saveAllCards()">📥 카드뉴스 5장 한 번에 저장</button><div id="hookArea">
 <h2>✨ 첫 장 제목 5개 추천</h2>
 <p>마음에 드는 제목을 누르면 첫 번째 카드에 적용돼요.</p>
 <div id="hookList"></div>
@@ -455,6 +455,11 @@ a.click();
 a.remove();
 setTimeout(()=>URL.revokeObjectURL(url),10000);
 },'image/png');
+}
+function saveAllCards(){
+  for(let i=0;i<5;i++){
+    saveCard(i);
+  }
 }
 </script>
 </body>
