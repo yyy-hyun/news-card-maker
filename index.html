@@ -464,22 +464,47 @@ function saveAllCards(){
   }
 }
 
+
 function makePostText(){
-  const title = document.querySelector(".card h2")?.textContent?.trim() || "오늘의 해외 뉴스";
+  const cards = [...document.querySelectorAll(".card")];
+  const contents = cards.slice(0,5).map(card => ({
+    title: card.querySelector("h2")?.textContent.trim() || "",
+    body: card.querySelector("p")?.textContent.trim() || ""
+  }));
+
+  if(!contents.length){
+    alert("먼저 카드뉴스를 만들어 주세요.");
+    return;
+  }
+
+  const title = contents[0].title;
+  const summary = contents
+    .map(c => c.body)
+    .filter(Boolean)
+    .filter((v,i,a) => a.indexOf(v) === i)
+    .join("\n\n")
+    .slice(0,900);
+
+  const keywords = (title+" "+summary)
+    .match(/[가-힣]{2,}/g) || [];
+  const stop = ["그리고","하지만","있습니다","했습니다","것으로","이러한","대해서","무엇이","있어요"];
+  const tags = [...new Set(keywords.filter(w =>
+    w.length>=2 && w.length<=8 && !stop.includes(w)
+  ))].slice(0,5).map(w=>"#"+w).join(" ");
 
   const post = `🌍 ${title}
 
-해외에서 전해진 흥미로운 소식!
-카드뉴스를 넘겨 자세한 내용을 확인해 보세요.
+${summary || "카드뉴스에서 자세한 내용을 확인해 보세요."}
 
 여러분은 이 소식을 어떻게 생각하시나요? 💬
 
-#해외뉴스 #해외소식 #카드뉴스 #오늘의뉴스 #흥미로운이야기`;
+#해외뉴스 #카드뉴스 #해외소식 ${tags}`;
 
   navigator.clipboard.writeText(post)
-    .then(()=>alert("게시글이 복사됐어요!"))
+    .then(()=>alert("게시글과 해시태그가 복사됐어요!"))
     .catch(()=>prompt("아래 글을 복사하세요.",post));
 }
+
 
 </script>
 </body>
