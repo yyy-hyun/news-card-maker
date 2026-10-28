@@ -64,6 +64,8 @@ a{color:#93c5fd}
 <h2>📱 카드뉴스 5장 미리보기</h2>
 <p>사진과 문구를 수정한 뒤 저장하세요.</p>
 <button onclick="saveAllCards()">📥 카드뉴스 5장 한 번에 저장</button><div id="hookArea">
+<button onclick="makePostText()">📝 게시글·해시태그 복사하기</button>
+
 <h2>✨ 첫 장 제목 5개 추천</h2>
 <p>마음에 드는 제목을 누르면 첫 번째 카드에 적용돼요.</p>
 <div id="hookList"></div>
@@ -461,6 +463,24 @@ function saveAllCards(){
     saveCard(i);
   }
 }
+
+function makePostText(){
+  const title = document.querySelector(".card h2")?.textContent?.trim() || "오늘의 해외 뉴스";
+
+  const post = `🌍 ${title}
+
+해외에서 전해진 흥미로운 소식!
+카드뉴스를 넘겨 자세한 내용을 확인해 보세요.
+
+여러분은 이 소식을 어떻게 생각하시나요? 💬
+
+#해외뉴스 #해외소식 #카드뉴스 #오늘의뉴스 #흥미로운이야기`;
+
+  navigator.clipboard.writeText(post)
+    .then(()=>alert("게시글이 복사됐어요!"))
+    .catch(()=>prompt("아래 글을 복사하세요.",post));
+}
+
 </script>
 </body>
 </html>
