@@ -182,8 +182,15 @@ const title=translatedTitle||newsTitle||'해외 뉴스';
 const desc=translatedDescription||newsDescription||'';
 const body=document.getElementById('articleText').value.trim();
 const s=sentences(body);
+const topic=title+' '+desc;
+const hookTitle=/고양이|강아지|개 |곰|새 |거북|동물|구조|고래|물개/.test(topic)
+  ? '동물에게 무슨 일이 벌어졌을까?'
+  : /폭우|홍수|폭설|태풍|지진|자연|호수|숲/.test(topic)
+  ? '자연에서 포착된 놀라운 장면'
+  : /사고|충돌|화재|열차|사건/.test(topic)
+  ? '현장에서 무슨 일이 벌어졌을까?'
+  : '이 소식이 주목받는 이유는?';  
 let second,third,fourth;
-
 if(s.length>=3){
 const cut1=Math.max(1,Math.ceil(s.length/3));
 const cut2=Math.max(cut1+1,Math.ceil(s.length*2/3));
@@ -201,7 +208,7 @@ fourth='기사의 결과와 중요한 사실을 원문에서 확인하고 작성
 }
 
 return [
-['현장에서 무슨 일이 벌어졌을까?',title],
+[hookTitle,title],
 ['사건은 어떻게 시작됐을까?',second],
 ['현장에서는 무슨 일이?',third],
 ['사건의 결과는?',fourth],
