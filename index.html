@@ -185,7 +185,7 @@ const desc=translatedDescription||newsDescription||'';
 const body=document.getElementById('articleText').value.trim();
 const s=sentences(body);
 const topic=title+' '+desc;
-const hookTitle=/고양이|강아지|개 |곰|새 |거북|동물|구조|고래|물개/.test(topic)
+const hookTitle=/고양이|강아지|닥스훈트|반려견|반려동물|개 |곰|새 |거북|동물|구조|고래|물개/.test(topic)
   ? '동물에게 무슨 일이 벌어졌을까?'
   : /폭우|홍수|폭설|태풍|지진|자연|호수|숲/.test(topic)
   ? '자연에서 포착된 놀라운 장면'
