@@ -47,6 +47,7 @@ a{color:#93c5fd}
 <div id="linkBox">
 <h2>뉴스 주소를 붙여넣으세요</h2>
 <input id="newsUrl" type="url" placeholder="https://example.com/news">
+<input id="manualTitle" type="text" placeholder="📝 뉴스 제목 직접 입력 (자동 불러오기 실패 시)">
 <button onclick="checkLink()">뉴스 정보 확인하기</button>
 </div>
 
@@ -132,6 +133,7 @@ result.innerHTML=
 result.innerHTML=
 '<p>뉴스 정보를 자동으로 가져오지 못했어요.</p>'+
 '<a href="'+safe(parsed.href)+'" target="_blank" rel="noopener noreferrer">원문 기사 열기</a>';
+showArticle();
 }
 }
 
@@ -178,7 +180,7 @@ return String(text||'')
 }
 
 function makeDraft(){
-const title=translatedTitle||newsTitle||'해외 뉴스';
+const title=document.getElementById('manualTitle').value.trim()||translatedTitle||newsTitle||'해외 뉴스';
 const desc=translatedDescription||newsDescription||'';
 const body=document.getElementById('articleText').value.trim();
 const s=sentences(body);
