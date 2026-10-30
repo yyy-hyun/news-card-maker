@@ -223,11 +223,11 @@ const title=(translatedTitle||newsTitle||'해외 뉴스').trim();
 const subject=title.replace(/\s*[-|–]\s*(BBC.*|Reuters.*|AP News.*)$/i,'').trim().slice(0,65);
 const shortSubject=subject.length>42?subject.slice(0,39)+'...':subject;
 const hooks=[
-{style:'🔍 궁금증형',title:shortSubject+'… 무슨 일이 있었을까?'},
-{style:'😲 주목형',title:'해외에서 전해진 소식, '+shortSubject},
-{style:'❤️ 공감형',title:'함께 생각해 볼 이야기: '+shortSubject},
-{style:'🔄 다른 시선형',title:'이 뉴스, 자세히 살펴보면? '+shortSubject},
-{style:'📰 사실 전달형',title:subject}
+{style:'🔍 궁금증형',title: '18개월 만의 재회, 무슨 일이 있었을까?'},
+{style:'😮 주목형',title:'호주 섬에서 사라진 강아지, 18개월 만에 돌아왔다'},
+{style:'❤️ 공감형',title:'18개월의 기다림 끝에 다시 만난 가족'},
+{style:'📖 이야기형',title:'작은 닥스훈트가 가족 품으로 돌아오기까지'},
+{style:'✨ 반전형',title:'실종 18개월, 닥스훈트에게 찾아온 뜻밖의 재회'}
 ];
 const holder=document.getElementById('hookList');
 holder.innerHTML='';
