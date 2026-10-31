@@ -200,9 +200,9 @@ second=s.slice(0,cut1).join(' ').slice(0,380);
 third=s.slice(cut1,cut2).join(' ').slice(0,380);
 fourth=s.slice(cut2).join(' ').slice(0,380);
 }else if(s.length){
-second=s[0];
-third=s.slice(1).join(' ')||'추가 경과는 원문에서 확인해 주세요.';
-fourth='기사의 결과와 핵심 사실을 확인하고 직접 작성해 주세요.';
+  second=s[0];
+  third=s[1] || desc || s[0];
+  fourth=s[2] || s[s.length-1];
 }else{
 second=desc||'기사 설명이 부족해요. 원문을 확인해 내용을 작성해 주세요.';
 third='기사의 구체적인 경과를 원문에서 확인하고 작성해 주세요.';
