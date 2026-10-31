@@ -224,14 +224,28 @@ const topic=title+' '+(translatedDescription||newsDescription||'');
 const isAnimal=/고양이|강아지|닥스훈트|반려견|반려동물|개 |곰|거북|동물|구조|고래|물개|cat|dog|dachshund|animal/i.test(topic);
 const subject=title.replace(/\s*[-|–]\s*(BBC.*|Reuters.*|AP News.*)$/i,'').trim().slice(0,65);
 const shortSubject=subject.length>42?subject.slice(0,39)+'...':subject;
+
 const cleanTitle = title.replace(/[.!?]+$/, '').trim();
-const hooks = [
-  {style:'🔍 궁금증형', title:cleanTitle + ', 대체 무슨 일이?'},
-  {style:'😮 주목형', title:cleanTitle + '… 놀라운 사연'},
-  {style:'❤️ 공감형', title:cleanTitle + ', 그 후의 이야기'},
-  {style:'📖 이야기형', title:cleanTitle + ', 어떻게 된 걸까?'},
-  {style:'✨ 반전형', title:cleanTitle + ', 결말은?'}
+const period = cleanTitle.match(/\d+\s*(?:개월|년|일|주)/)?.[0] || '';
+const animal = /강아지|닥스훈트|반려견|개/.test(cleanTitle)
+  ? '작은 강아지' : '주인공';
+const missing = /실종|사라|잃어버|행방/.test(cleanTitle);
+const reunion = /재회|돌아|발견|구조/.test(cleanTitle);
+
+const hooks = missing && period ? [
+  {style:'🔍 궁금증형', title:`${period} 동안 사라졌던 ${animal}, 어디에 있었을까?`},
+  {style:'😮 주목형', title:`사라진 ${animal}, ${period} 만에 무슨 일이?`},
+  {style:'❤️ 공감형', title:`${period}을 기다린 가족, ${animal}의 이야기`},
+  {style:'📖 이야기형', title:`${animal}는 어떻게 ${period}을 버텼을까?`},
+  {style:'✨ 반전형', title:reunion ? `${period} 만에 다시 만난 가족과 ${animal}` : `${period} 실종 사건, 뜻밖의 결말`}
+] : [
+  {style:'🔍 궁금증형', title:`${cleanTitle}, 무슨 일이 있었을까?`},
+  {style:'😮 주목형', title:`${cleanTitle}… 그 이유는?`},
+  {style:'❤️ 공감형', title:`${cleanTitle}, 그 후의 이야기`},
+  {style:'📖 이야기형', title:`${cleanTitle}, 어떻게 된 걸까?`},
+  {style:'✨ 반전형', title:`${cleanTitle}, 예상 밖의 결말?`}
 ];
+
 
 const holder=document.getElementById('hookList');
 holder.innerHTML='';
