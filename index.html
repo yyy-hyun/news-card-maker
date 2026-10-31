@@ -220,14 +220,16 @@ return [
 
 function makeHooks(){
 const title=(translatedTitle||newsTitle||'해외 뉴스').trim();
+const topic=title+' '+(translatedDescription||newsDescription||'');
+const isAnimal=/고양이|강아지|닥스훈트|반려견|반려동물|개 |곰|거북|동물|구조|고래|물개|cat|dog|dachshund|animal/i.test(topic);
 const subject=title.replace(/\s*[-|–]\s*(BBC.*|Reuters.*|AP News.*)$/i,'').trim().slice(0,65);
 const shortSubject=subject.length>42?subject.slice(0,39)+'...':subject;
 const hooks=[
-{style:'🔍 궁금증형',title: '18개월 만의 재회, 무슨 일이 있었을까?'},
-{style:'😮 주목형',title:'호주 섬에서 사라진 강아지, 18개월 만에 돌아왔다'},
-{style:'❤️ 공감형',title:'18개월의 기다림 끝에 다시 만난 가족'},
-{style:'📖 이야기형',title:'작은 닥스훈트가 가족 품으로 돌아오기까지'},
-{style:'✨ 반전형',title:'실종 18개월, 닥스훈트에게 찾아온 뜻밖의 재회'}
+{style:'🔍 궁금증형',title:isAnimal?'동물에게 무슨 일이 벌어졌을까?':shortSubject+'… 무슨 일이 있었을까?'},
+{style:'😮 주목형',title:isAnimal?'해외에서 전해진 놀라운 동물 이야기':shortSubject+'… 주목받는 이유는?'},
+{style:'❤️ 공감형',title:isAnimal?'마음을 따뜻하게 하는 동물 이야기':shortSubject+'… 함께 생각해 볼 이야기'},
+{style:'📖 이야기형',title:isAnimal?'이 동물에게 어떤 사연이 있었을까?':'이 뉴스, 자세히 살펴보면?'},
+{style:'✨ 반전형',title:isAnimal?'이 동물 이야기의 뜻밖의 결말은?':shortSubject+'… 예상 밖의 이야기'}
 ];
 const holder=document.getElementById('hookList');
 holder.innerHTML='';
