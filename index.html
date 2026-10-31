@@ -219,7 +219,7 @@ return [
 }
 
 function makeHooks(){
-const title=(translatedTitle||newsTitle||'해외 뉴스').trim();
+const title=(document.getElementById('manualTitle').value.trim()||translatedTitle||newsTitle||'해외 뉴스').trim();
 const topic=title+' '+(translatedDescription||newsDescription||'');
 const isAnimal=/고양이|강아지|닥스훈트|반려견|반려동물|개 |곰|거북|동물|구조|고래|물개|cat|dog|dachshund|animal/i.test(topic);
 const subject=title.replace(/\s*[-|–]\s*(BBC.*|Reuters.*|AP News.*)$/i,'').trim().slice(0,65);
