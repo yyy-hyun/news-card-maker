@@ -119,7 +119,7 @@ if(!response.ok)throw Error();
 const json=await response.json();
 if(json.status!=='success'||!json.data)throw Error();
 newsTitle=json.data.title||'제목을 가져오지 못했어요.';
-const articleContent=json.data.content || '';
+const articleContent=json.data.content || json.data.description || '';
 newsDescription=json.data.description||'기사 설명을 가져오지 못했어요.';
 translatedTitle='';
 translatedDescription='';
