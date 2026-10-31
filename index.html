@@ -209,13 +209,23 @@ third='기사의 구체적인 경과를 원문에서 확인하고 작성해 주�
 fourth='기사의 결과와 중요한 사실을 원문에서 확인하고 작성해 주세요.';
 }
 
+const period = title.match(/\d+\s*(?:개월|년|일|주)/)?.[0] || '';
+const isDog = /강아지|닥스훈트|반려견/.test(topic);
+const missing = /실종|사라|잃어버/.test(topic);
+const reunited = /재회|다시 만나|돌아왔/.test(topic);
+
+const mainTitle = missing && period && isDog
+  ? `${period} 동안 사라졌던 작은 강아지, 어디에 있었을까?`
+  : hookTitle;
+
 return [
-[hookTitle,title],
-['사건은 어떻게 시작됐을까?',second],
-['현장에서는 무슨 일이?',third],
-['사건의 결과는?',fourth],
-['앞으로 주목할 점은?','자세한 내용과 사실관계는 원문 기사를 확인해 주세요.']
+  [mainTitle, title],
+  [missing ? '여행 중 사라진 작은 강아지' : '사건은 어떻게 시작됐을까?', second],
+  [missing && period ? `${period} 동안 무슨 일이 있었을까?` : '현장에서는 무슨 일이?', third],
+  [reunited ? '마침내 찾아온 재회의 순간' : '사건의 결과는?', fourth],
+  ['이 이야기의 마지막은?', reunited ? '가족과 다시 만났다는 사실이 전해졌습니다.' : '기사 원문에서 결말과 핵심 사실을 확인해 주세요.']
 ];
+
 }
 
 function makeHooks(){
