@@ -153,6 +153,7 @@ return data.responseData.translatedText;
 };
 translatedTitle=await translate(newsTitle);
 translatedDescription=await translate(newsDescription);
+document.getElementById('articleText').value=await translate(document.getElementById('articleText').value);
 target.innerHTML=
 '<h3>🇰🇷 한글 번역</h3>'+
 '<p><strong>'+safe(translatedTitle)+'</strong></p>'+
